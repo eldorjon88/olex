@@ -1,26 +1,20 @@
-from .models import CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.exceptions import AuthenticationFailed
+from .models import CustomUser
+
 
 def get_tokens_for_user(user):
-
     refresh = RefreshToken.for_user(user)
-
     return {
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
 
-def create_user(data):
-    user = CustomUser.objects.create_user(**data)
+
+def create_user(data: dict) -> CustomUser:
+    user = CustomUser.objects.create(
+        telegram_id=data['telegram_id'],
+        username=data.get('username', f"user_{data['telegram_id']}"),
+        first_name=data.get('first_name', ''),
+        last_name=data.get('last_name', ''),
+    )
     return user
-
-def set_number(telegram_id, number):
-    user = CustomUser.objects.filter(telegram_id=telegram_id).first()
-    
-    if user:
-        user.phone_number = number
-        user.save()
-        return True
-    return False
-

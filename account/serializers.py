@@ -1,31 +1,31 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.tokens import RefreshToken
+from .models import CustomUser, SellerProfile
 
-User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ['id', 'username', 'email']
+        model = CustomUser
+        fields = ['id', 'telegram_id', 'username', 'first_name', 'last_name',
+                  'phone_number', 'role', 'avatar']
+        read_only_fields = ['id', 'telegram_id', 'role']
 
-class UserLoginSerializer(serializers.Serializer):
+
+class SellerProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SellerProfile
+        fields = '__all__'
+        read_only_fields = ['user', 'rating', 'total_sales']
+
+
+class UpgradeToSellerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SellerProfile
+        fields = ['shop_name', 'shop_description', 'shop_logo', 'region', 'district', 'address']
+
+
+class TelegramLoginSerializer(serializers.Serializer):
+    telegram_id = serializers.IntegerField()
     username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
-    token = serializers.CharField(read_only=True)
-
-    def validate(self, attrs):
-        username = attrs.get('username')
-        password = attrs.get('password')
-
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise serializers.ValidationError('User not found')
-
-        if not user.check_password(password):
-            raise serializers.ValidationError('Incorrect password')
-
-        refresh = RefreshToken.for_user(user)
-        attrs['token'] = str(refresh.access_token)
-        return attrs
+    first_name = serializers.CharField()
+    last_name = serializers.CharField(required=False, default='')
+    photo_url = serializers.CharField(required=False, allow_null=True)
