@@ -11,7 +11,7 @@ class Category(models.Model):
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
     order_num = models.PositiveIntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)  # ← null=True qo'shildi
 
     def save(self, *args, **kwargs):
         if not self.slug:
