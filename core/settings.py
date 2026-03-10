@@ -29,8 +29,7 @@ DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
-
-# Application definition
+TELEGRAM_BOT_USERNAME = config('TELEGRAM_BOT_USERNAME')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
