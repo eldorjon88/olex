@@ -1,5 +1,4 @@
 from rest_framework import viewsets, status, serializers
-from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -43,7 +42,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
     def get_queryset(self):
-        queryset = Product.objects.filter(status='aktiv')
+        queryset = Product.objects.all()  # ← barcha mahsulotlar
         min_price = self.request.query_params.get('min_price')
         max_price = self.request.query_params.get('max_price')
         if min_price:
@@ -152,7 +151,6 @@ class OrderViewSet(viewsets.ModelViewSet):
         new_status = request.data.get('status')
         user = request.user
 
-        # Sotuvchi: kutilyapti → kelishilgan yoki bekor qilingan
         if user == order.seller and new_status in ['kelishilgan', 'bekor qilingan']:
             order.status = new_status
             order.meeting_location = request.data.get('meeting_location', order.meeting_location)
@@ -160,7 +158,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.save()
             return Response(OrderSerializer(order).data)
 
-        # Xaridor: kelishilgan → sotib olingan yoki bekor qilingan
         if user == order.buyer and new_status in ['sotib olingan', 'bekor qilingan']:
             order.status = new_status
             order.save()
@@ -205,7 +202,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
             seller=order.seller
         )
 
-        # Sotuvchi reytingini yangilash
         seller = order.seller
         reviews = Review.objects.filter(seller=seller)
         avg = sum(r.rating for r in reviews) / reviews.count()
